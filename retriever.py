@@ -19,20 +19,23 @@ class Retriever:
             query_texts=[query],
             n_results=k
         )
-        
+
+        if not results["documents"] or not results["documents"][0]:
+            return "No relevant documents found."
+
         docs = results["documents"][0]
         metas = results["metadatas"][0]
 
         context_blocks = []
         for doc, meta in zip(docs, metas):
             header = (
-                f"Source: {meta['original_file']} | "
-                f"Section {meta['section_number']} {meta['section_title']}"
+                f"Source: {meta.get('original_file', 'Unknown')} | "
+                f"Section {meta.get('section_number', '')} "
+                f"{meta.get('section_title', '')}"
             )
             context_blocks.append(f"{header}\n{doc}")
-        context = "\n\n".join(context_blocks)
 
-        return context
+        return "\n\n".join(context_blocks)
 
 from fastapi import FastAPI
 from pydantic import BaseModel
